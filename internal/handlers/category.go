@@ -58,7 +58,7 @@ func (h *CategoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 }
 
 func (h *CategoryHandler) GetDialogContext() string {
-	return "coeff"
+	return "side"
 }
 
 func (h *CategoryHandler) GetPreviousRoute() string {

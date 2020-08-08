@@ -4,6 +4,7 @@ import (
 	"context"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	ob "github.com/miktwon/orderbook"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
 	"gitlab.com/fireferretsbet/tg-bot/internal/user"
@@ -38,8 +39,19 @@ func NewCoeffHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.Bo
 }
 
 func (h *CoeffHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
-	// persist match name to state
-	h.userStates[update.Message.From.ID].Match = update.Message.Text
+	text := update.Message.Text
+	if text != "Назад ⬅️" {
+		var side ob.Side
+		if text == "Lay" {
+			side = ob.Lay
+		} else if text == "Back" {
+			side = ob.Back
+		} else {
+			return tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите Lay или Back")
+		}
+
+		h.userStates[update.Message.From.ID].Side = side
+	}
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите коэффициент или введите свой")
 	msg.ReplyMarkup = coeffMenuKeyboard
@@ -51,5 +63,5 @@ func (h *CoeffHandler) GetDialogContext() string {
 }
 
 func (h *CoeffHandler) GetPreviousRoute() string {
-	return "categories"
+	return "side"
 }

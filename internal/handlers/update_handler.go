@@ -42,6 +42,8 @@ func NewUpdateHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.B
 		NewCoeffHandler,
 		NewBetHandler,
 		NewBetCheckHandler,
+		NewTopUpHandler,
+		NewSideHandler,
 	})
 
 	return h

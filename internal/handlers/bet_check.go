@@ -45,7 +45,7 @@ func (h *BetCheckHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 
 	state := h.userStates[update.Message.From.ID]
 
-	text := fmt.Sprintf("Проверьте правильность данных\n\nМатч: %s\nКоэффициент: %s\nСтавка: %s$\n\n", state.Match, state.Coeff, state.Qty)
+	text := fmt.Sprintf("Проверьте правильность данных\n\nМатч: %s\nСторона: %s\nКоэффициент: %s\nСтавка: %s$\n\n", state.Match, state.Side, state.Coeff, state.Qty)
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
 	msg.ReplyMarkup = betCheckMenuKeyboard
 	return msg
