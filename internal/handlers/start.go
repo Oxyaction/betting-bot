@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
+	"gitlab.com/fireferretsbet/tg-bot/internal/user"
 )
 
 var startMenuKeyboard = tgbotapi.NewReplyKeyboard(
@@ -23,18 +24,17 @@ var startMenuKeyboard = tgbotapi.NewReplyKeyboard(
 )
 
 type StartHandler struct {
-	keys []string
-	bot  *tgbotapi.BotAPI
+	GenericHandler
 }
 
-func NewStartHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
+func NewStartHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
 	return &StartHandler{
-		keys: []string{"start", "Главное меню ⬅️"},
-		bot:  bot,
+		GenericHandler{
+			keys:       []string{"start", "Главное меню ⬅️"},
+			bot:        bot,
+			userStates: userStates,
+		},
 	}
-}
-func (h *StartHandler) Keys() []string {
-	return h.keys
 }
 
 func (h *StartHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {

@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
+	"gitlab.com/fireferretsbet/tg-bot/internal/user"
 )
 
 var matches map[string][]string = map[string][]string{
@@ -15,33 +16,21 @@ var matches map[string][]string = map[string][]string{
 	"Политика 🏛️":  []string{"1. Joe Biden - Donald Trump", "2. Лукашенко - Тихановская"},
 }
 
-var categoryMenuKeyboard = tgbotapi.NewReplyKeyboard(
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Спорт ⚽"),
-		tgbotapi.NewKeyboardButton("Киберспорт 🎮"),
-		tgbotapi.NewKeyboardButton("Политика 🏛️"),
-		tgbotapi.NewKeyboardButton("Главное меню ⬅️"),
-	),
-)
-
 type CategoryHandler struct {
-	keys []string
-	bot  *tgbotapi.BotAPI
+	GenericHandler
 }
 
-func NewCategoryHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
+func NewCategoryHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
 	return &CategoryHandler{
-		keys: []string{
-			"Спорт ⚽",
-			"Киберспорт 🎮",
-			"Политика 🏛️",
+		GenericHandler{
+			keys: []string{
+				"Спорт ⚽",
+				"Киберспорт 🎮",
+				"Политика 🏛️",
+			},
+			bot: bot,
 		},
-		bot: bot,
 	}
-}
-
-func (h *CategoryHandler) Keys() []string {
-	return h.keys
 }
 
 func (h *CategoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
@@ -52,7 +41,7 @@ func (h *CategoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 		for i := 0; i < len(matches); i++ {
 			buttons = append(buttons, tgbotapi.NewKeyboardButton(matches[i]))
 		}
-		buttons = append(buttons, tgbotapi.NewKeyboardButton("Главное меню ⬅️"))
+		buttons = append(buttons, tgbotapi.NewKeyboardButton("Назад ⬅️"))
 		var digitsMenuKeyboard = tgbotapi.NewReplyKeyboard(
 			tgbotapi.NewKeyboardButtonRow(buttons...),
 		)
@@ -66,4 +55,12 @@ func (h *CategoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 	}
 
 	return msg
+}
+
+func (h *CategoryHandler) GetDialogContext() string {
+	return "coeff"
+}
+
+func (h *CategoryHandler) GetPreviousRoute() string {
+	return "categories"
 }

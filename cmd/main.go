@@ -7,8 +7,8 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/cmd/handler"
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
+	"gitlab.com/fireferretsbet/tg-bot/internal/handlers"
 	"gitlab.com/fireferretsbet/tg-bot/internal/logger"
 )
 
@@ -25,7 +25,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	bot.Debug = config.Debug
+	bot.Debug = false
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -39,7 +39,7 @@ func main() {
 	updates := bot.ListenForWebhook("/")
 	go http.ListenAndServe("0.0.0.0:"+strconv.Itoa(config.Port), nil)
 
-	h := handler.NewHandler(log, config, bot)
+	h := handlers.NewUpdateHandler(log, config, bot)
 	ctx := context.Background()
 	for update := range updates {
 		go h.Handle(update, ctx)
