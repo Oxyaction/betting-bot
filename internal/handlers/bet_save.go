@@ -49,8 +49,8 @@ func (h *BetSaveHandler) Handle(update tgbotapi.Update, ctx context.Context) tgb
 		return tgbotapi.NewMessage(update.Message.Chat.ID, "Не удалось сохранить ставку 😞\n")
 	}
 
-	text := fmt.Sprintf("Проверьте правильность данных\n\nМатч: %s\nСторона: %s\nКоэффициент: %s\nСтавка: %s$\n\n", event.Name, state.Side, state.Coeff, state.Qty)
+	text := fmt.Sprintf("Ставка успешно сохранена ✅\n")
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
-	msg.ReplyMarkup = betCheckMenuKeyboard
+	msg.ReplyMarkup = startMenuKeyboard
 	return msg
 }
