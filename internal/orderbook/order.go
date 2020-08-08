@@ -18,7 +18,11 @@ const (
 )
 
 var (
-	ErrNotEnoughFounds = errors.New("orderbook: not enough founds")
+	ErrNotEnoughFounds       = errors.New("orderbook: not enough founds")
+	ErrOrderNotFound         = errors.New("orderbook: order not found")
+	ErrOrderInvalidOrderUser = errors.New("orderbook: invalid order-urer")
+	ErrOrderAlreadyMatched   = errors.New("orderbook: order already matched")
+	ErrOrderAlreadyCanceled  = errors.New("orderbook: order already canceled")
 )
 
 type OrderMap map[uuid.UUID]Order

@@ -19,6 +19,10 @@ type User struct {
 	history History
 }
 
+func (u *User) ID() uuid.UUID {
+	return u.id
+}
+
 func (u *User) GetBalance() (b decimal.Decimal) {
 	u.mu.RLock()
 	b = u.balance

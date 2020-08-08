@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"sync"
 
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
 	"github.com/google/uuid"
 	ob "github.com/miktwon/orderbook"
 	"github.com/shopspring/decimal"
+	"gitlab.com/fireferretsbet/tg-bot/internal/user"
 )
 
 type OrderBook struct {
@@ -36,9 +36,31 @@ func (b *OrderBook) Place(user *user.User, order Order) (err error) {
 	return
 }
 
-func (b *OrderBook) Cancel(user *user.User, orderID uuid.UUID) (err error) {
+func (b *OrderBook) Cancel(user *user.User, orderID uuid.UUID) (order Order, err error) {
 	b.mu.Lock()
-	b.ob.CancelOrder(orderID)
+	defer b.mu.Unlock()
+
+	memUser, order2userOk := b.order2user[orderID]
+	order, orderMapOk := b.orderMap[orderID]
+	switch {
+	case !order2userOk || memUser.ID() != user.ID():
+		err = ErrOrderInvalidOrderUser
+	case !orderMapOk:
+		err = ErrOrderNotFound
+	case order.Status == OrderStatusMatched:
+		err = ErrOrderAlreadyMatched
+	case order.Status == OrderStatusCanceled:
+		err = ErrOrderAlreadyCanceled
+	}
+	if err != nil {
+		return
+	}
+
+	o := b.ob.CancelOrder(orderID)
+	order.Status = OrderStatusCanceled
+	order.Unmatched = o.Quantity()
+	order.Matched = order.Qty.Sub(order.Unmatched)
+	b.orderMap[orderID] = order
 
 	b.mu.Unlock()
 	return
