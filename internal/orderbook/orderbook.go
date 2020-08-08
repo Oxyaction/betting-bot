@@ -19,6 +19,15 @@ type OrderBook struct {
 	order2user map[uuid.UUID]*user.User
 }
 
+func NewOrderBook() *OrderBook {
+	return &OrderBook{
+		ob:         ob.NewOrderBook(),
+		orderMap:   OrderMap{},
+		user2order: map[*user.User][]uuid.UUID{},
+		order2user: map[uuid.UUID]*user.User{},
+	}
+}
+
 func (b *OrderBook) Place(user *user.User, order Order) (err error) {
 	b.mu.Lock()
 	b.orderMap[order.ID] = order
@@ -73,6 +82,7 @@ func (b *OrderBook) place(
 	changed []Order,
 	err error,
 ) {
+	setPlacedStatus := true
 	// TODO: tx
 	balance := user.GetBalance()
 	if balance.LessThan(order.Qty) {
@@ -91,21 +101,33 @@ func (b *OrderBook) place(
 	)
 
 	for _, o := range done {
-		order := b.orderMap[o.ID()]
-		order.Status = OrderStatusMatched
-		order.Matched = order.Qty
-		order.Unmatched = decimal.Zero
-		b.orderMap[o.ID()] = order
-		changed = append(changed, order)
+		memOrder := b.orderMap[o.ID()]
+		memOrder.Status = OrderStatusMatched
+		memOrder.Matched = order.Qty
+		memOrder.Unmatched = decimal.Zero
+		b.orderMap[o.ID()] = memOrder
+		changed = append(changed, memOrder)
+		if memOrder.ID == order.ID {
+			setPlacedStatus = false
+		}
 	}
 
 	if partial != nil {
-		o := b.orderMap[partial.ID()]
-		o.Unmatched = partial.Quantity()
-		o.Matched = o.Qty.Sub(o.Unmatched)
-		order.Status = OrderStatusPartial
-		b.orderMap[partial.ID()] = o
-		changed = append(changed, o)
+		memOrder := b.orderMap[partial.ID()]
+		memOrder.Unmatched = partial.Quantity()
+		memOrder.Matched = memOrder.Qty.Sub(memOrder.Unmatched)
+		memOrder.Status = OrderStatusPartial
+		b.orderMap[partial.ID()] = memOrder
+		changed = append(changed, memOrder)
+		if memOrder.ID == order.ID {
+			setPlacedStatus = false
+		}
+	}
+
+	if setPlacedStatus {
+		order.Status = OrderStatusPlaced
+		b.orderMap[order.ID] = order
+		changed = append(changed, order)
 	}
 
 	return
