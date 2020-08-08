@@ -37,6 +37,7 @@ func NewUpdateHandler(env *serverenv.ServerEnv) *UpdateHandler {
 		NewBetCheckHandler,
 		NewTopUpHandler,
 		NewSideHandler,
+		NewBetSaveHandler,
 	})
 
 	return h

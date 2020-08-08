@@ -39,17 +39,12 @@ func (h *BetCheckHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 		h.env.UserManager().SetQty(update.Message.From.ID, bet)
 	}
 	state := h.env.UserManager().GetState(update.Message.From.ID)
+	event := h.env.EventManager().Event(state.Event)
 
-	// state := h.userStates[update.Message.From.ID]
-
-	text := fmt.Sprintf("Проверьте правильность данных\n\nМатч: %s\nСторона: %s\nКоэффициент: %s\nСтавка: %s$\n\n", state.Match, state.Side, state.Coeff, state.Qty)
+	text := fmt.Sprintf("Проверьте правильность данных\n\nМатч: %s\nСторона: %s\nКоэффициент: %s\nСтавка: %s$\n\n", event.Name, state.Side, state.Coeff, state.Qty)
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
 	msg.ReplyMarkup = betCheckMenuKeyboard
 	return msg
-}
-
-func (h *BetCheckHandler) GetDialogContext() string {
-	return "bet_save"
 }
 
 func (h *BetCheckHandler) GetPreviousRoute() string {

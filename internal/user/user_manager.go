@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	ob "github.com/miktwon/orderbook"
 	"github.com/shopspring/decimal"
 )
@@ -25,6 +26,10 @@ func (um *UserManager) Add(id int) {
 	}
 	um.users[id] = NewUser(id)
 	um.userStates[id] = &UserState{}
+}
+
+func (um *UserManager) GetUser(id int) *User {
+	return um.users[id]
 }
 
 func (um *UserManager) GetState(id int) *UserState {
@@ -85,10 +90,10 @@ func (um *UserManager) SetSide(id int, side ob.Side) error {
 	return nil
 }
 
-func (um *UserManager) SetMatch(id int, match string) error {
+func (um *UserManager) SetEvent(id int, eventId uuid.UUID) error {
 	if _, ok := um.userStates[id]; !ok {
 		return fmt.Errorf("UserState does not exist for user #%d", id)
 	}
-	um.userStates[id].Match = match
+	um.userStates[id].Event = eventId
 	return nil
 }

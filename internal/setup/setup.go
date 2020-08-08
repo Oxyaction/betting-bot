@@ -3,6 +3,7 @@ package setup
 import (
 	"context"
 	"fmt"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
@@ -12,6 +13,7 @@ import (
 	"gitlab.com/fireferretsbet/tg-bot/internal/user"
 )
 
+// prepare services container
 func Setup(ctx context.Context) (*serverenv.ServerEnv, *config.Config, error) {
 	config := config.NewConfig()
 	log := logger.NewLogger(config)
@@ -25,6 +27,12 @@ func Setup(ctx context.Context) (*serverenv.ServerEnv, *config.Config, error) {
 	opts = append(opts, serverenv.WithTelegramAPI(bot))
 
 	em := event.NewManager(log)
+	// add test data
+	em.NewEvent("Спорт ⚽", "Динамо - Шахтер", time.Now().Add(2*time.Hour))
+	em.NewEvent("Спорт ⚽", "Ворскла - Карпаты", time.Now().Add(2*time.Hour))
+	em.NewEvent("Киберспорт 🎮", "Navi - Empire", time.Now().Add(2*time.Hour))
+	em.NewEvent("Политика 🏛️", "Baiden - Trump", time.Now().Add(2*time.Hour))
+
 	opts = append(opts, serverenv.WithEventManager(em))
 	opts = append(opts, serverenv.WithLogger(log))
 	opts = append(opts, serverenv.WithUserManager(user.NewUserManager()))
