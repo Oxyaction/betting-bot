@@ -2,6 +2,7 @@ package orderbook
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"sync"
 
 	"github.com/google/uuid"
@@ -11,16 +12,18 @@ import (
 )
 
 type OrderBook struct {
-	mu sync.RWMutex
-	ob *ob.OrderBook
+	log *logrus.Logger
+	mu  sync.RWMutex
+	ob  *ob.OrderBook
 
 	orderMap   OrderMap
 	user2order map[*user.User][]uuid.UUID
 	order2user map[uuid.UUID]*user.User
 }
 
-func NewOrderBook() *OrderBook {
+func NewOrderBook(log *logrus.Logger) *OrderBook {
 	return &OrderBook{
+		log:        log,
 		ob:         ob.NewOrderBook(),
 		orderMap:   OrderMap{},
 		user2order: map[*user.User][]uuid.UUID{},
@@ -28,7 +31,7 @@ func NewOrderBook() *OrderBook {
 	}
 }
 
-func (b *OrderBook) Place(user *user.User, order Order) (err error) {
+func (b *OrderBook) Place(user *user.User, order Order) (changedMap map[*user.User][]Order, err error) {
 	b.mu.Lock()
 	b.orderMap[order.ID] = order
 	b.order2user[order.ID] = user
@@ -38,9 +41,7 @@ func (b *OrderBook) Place(user *user.User, order Order) (err error) {
 	if err != nil {
 		return
 	}
-
-	// TODO
-	b.notifyUsers(changed)
+	changedMap = b.makeChangedMap(changed)
 
 	return
 }
@@ -133,8 +134,13 @@ func (b *OrderBook) place(
 	return
 }
 
-// TODO:
-func (b *OrderBook) notifyUsers(changed []Order) {
+func (b *OrderBook) makeChangedMap(changed []Order) (changedMap map[*user.User][]Order) {
+	changedMap = map[*user.User][]Order{}
 	b.mu.RLock()
+	for _, order := range changed {
+		user := b.order2user[order.ID]
+		changedMap[user] = append(changedMap[user], order)
+	}
 	b.mu.RUnlock()
+	return
 }
