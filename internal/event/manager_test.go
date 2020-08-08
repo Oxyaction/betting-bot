@@ -17,7 +17,7 @@ func TestManager(t *testing.T) {
 	em := NewManager(log)
 	e := em.NewEvent("eventCategory", "eventName", time.Now().Add(2*time.Second))
 
-	u1 := user.NewUser()
+	u1 := user.NewUser(1)
 	u1.ChangeBalance("test money", decimal.NewFromInt(100))
 	o1 := orderbook.NewOrder()
 	o1.Side = ob.Back
@@ -29,7 +29,7 @@ func TestManager(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	u2 := user.NewUser()
+	u2 := user.NewUser(2)
 	u2.ChangeBalance("test money", decimal.NewFromInt(100))
 	o2 := orderbook.NewOrder()
 	o2.Side = ob.Lay
