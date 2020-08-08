@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"context"
@@ -8,29 +8,17 @@ import (
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
 )
 
-// var balanceMenuKeyboard = tgbotapi.NewReplyKeyboard(
-// 	tgbotapi.NewKeyboardButtonRow(
-// 		tgbotapi.NewKeyboardButton("Спорт ⚽"),
-// 		tgbotapi.NewKeyboardButton("Киберспорт 🎮"),
-// 		tgbotapi.NewKeyboardButton("Политика 🏛️"),
-// 		tgbotapi.NewKeyboardButton("Главное меню ⬅️"),
-// 	),
-// )
-
 type BalanceHandler struct {
-	keys []string
-	bot  *tgbotapi.BotAPI
+	GenericHandler
 }
 
 func NewBalanceHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
 	return &BalanceHandler{
-		keys: []string{"Баланс 🏦"},
-		bot:  bot,
+		GenericHandler{
+			keys: []string{"Баланс 🏦"},
+			bot:  bot,
+		},
 	}
-}
-
-func (h *BalanceHandler) Keys() []string {
-	return h.keys
 }
 
 func (h *BalanceHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {

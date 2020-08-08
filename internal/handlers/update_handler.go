@@ -1,7 +1,8 @@
-package handler
+package handlers
 
 import (
 	"context"
+	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
@@ -9,25 +10,24 @@ import (
 )
 
 type HandlerFactory func(*logrus.Logger, *config.Config, *tgbotapi.BotAPI) Handler
-type Handler interface {
-	Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig
-	Keys() []string
-}
 
 type UpdateHandler struct {
-	log      *logrus.Logger
-	config   *config.Config
-	bot      *tgbotapi.BotAPI
-	handlers map[string]Handler
+	log         *logrus.Logger
+	config      *config.Config
+	bot         *tgbotapi.BotAPI
+	handlers    map[string]Handler
+	userContext map[int]string
 }
 
-func NewHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) *UpdateHandler {
+func NewUpdateHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) *UpdateHandler {
 	handlers := make(map[string]Handler)
+	userContext := make(map[int]string)
 	h := &UpdateHandler{
 		log,
 		config,
 		bot,
 		handlers,
+		userContext,
 	}
 
 	h.RegisterHandlers([]HandlerFactory{
@@ -38,6 +38,7 @@ func NewHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI)
 		NewNackedBetsHandler,
 		NewHistoryHandler,
 		NewCategoryHandler,
+		NewMatchHandler,
 	})
 
 	return h
@@ -64,21 +65,31 @@ func (h *UpdateHandler) Handle(update tgbotapi.Update, ctx context.Context) {
 	}).Info("message accepted")
 
 	var msg tgbotapi.MessageConfig
-	fallback := tgbotapi.NewMessage(update.Message.Chat.ID, "Пожалуйста, выберите пункт меню")
+	fallback := tgbotapi.NewMessage(update.Message.Chat.ID, "Неизвестная комманда")
 
+	var handler Handler
+	// trying to get command handler
 	if update.Message.IsCommand() {
-		if handler, ok := h.handlers[update.Message.Command()]; ok {
-			msg = handler.Handle(update, ctx)
-		} else {
-			msg = fallback
-		}
-	} else {
-		if handler, ok := h.handlers[update.Message.Text]; ok {
-			msg = handler.Handle(update, ctx)
-		} else {
-			msg = fallback
+		handler = h.handlers[update.Message.Command()]
+		// trying to get text handler
+	} else if _, ok := h.handlers[update.Message.Text]; ok {
+		handler = h.handlers[update.Message.Text]
+		// trying to get contextual handler
+	} else if _, ok := h.userContext[update.Message.From.ID]; ok {
+		key := h.userContext[update.Message.From.ID]
+		if key != "" {
+			handler = h.handlers[key]
 		}
 	}
+
+	if handler != nil {
+		msg = handler.Handle(update, ctx)
+		h.userContext[update.Message.From.ID] = handler.GetDialogContext()
+	} else {
+		msg = fallback
+	}
+
+	fmt.Printf("%+v\n", h.userContext)
 
 	h.bot.Send(msg)
 }

@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"context"
@@ -23,18 +23,16 @@ var startMenuKeyboard = tgbotapi.NewReplyKeyboard(
 )
 
 type StartHandler struct {
-	keys []string
-	bot  *tgbotapi.BotAPI
+	GenericHandler
 }
 
 func NewStartHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
 	return &StartHandler{
-		keys: []string{"start", "Главное меню ⬅️"},
-		bot:  bot,
+		GenericHandler{
+			keys: []string{"start", "Главное меню ⬅️"},
+			bot:  bot,
+		},
 	}
-}
-func (h *StartHandler) Keys() []string {
-	return h.keys
 }
 
 func (h *StartHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {

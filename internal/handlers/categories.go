@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"context"
@@ -18,19 +18,16 @@ var categoriesMenuKeyboard = tgbotapi.NewReplyKeyboard(
 )
 
 type CategoriesHandler struct {
-	keys []string
-	bot  *tgbotapi.BotAPI
+	GenericHandler
 }
 
 func NewCategoriesHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
 	return &CategoriesHandler{
-		keys: []string{"Категории 📂"},
-		bot:  bot,
+		GenericHandler{
+			keys: []string{"Категории 📂"},
+			bot:  bot,
+		},
 	}
-}
-
-func (h *CategoriesHandler) Keys() []string {
-	return h.keys
 }
 
 func (h *CategoriesHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {

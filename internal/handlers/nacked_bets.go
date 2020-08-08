@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"context"
@@ -18,19 +18,16 @@ import (
 // )
 
 type NackedBetsHandler struct {
-	keys []string
-	bot  *tgbotapi.BotAPI
+	GenericHandler
 }
 
 func NewNackedBetsHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
 	return &NackedBetsHandler{
-		keys: []string{"Неподтвержденные ставки 🤔"},
-		bot:  bot,
+		GenericHandler{
+			keys: []string{"Неподтвержденные ставки 🤔"},
+			bot:  bot,
+		},
 	}
-}
-
-func (h *NackedBetsHandler) Keys() []string {
-	return h.keys
 }
 
 func (h *NackedBetsHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {

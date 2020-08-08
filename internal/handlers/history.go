@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"context"
@@ -8,29 +8,17 @@ import (
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
 )
 
-// var categoriesMenuKeyboard = tgbotapi.NewReplyKeyboard(
-// 	tgbotapi.NewKeyboardButtonRow(
-// 		tgbotapi.NewKeyboardButton("Спорт ⚽"),
-// 		tgbotapi.NewKeyboardButton("Киберспорт 🎮"),
-// 		tgbotapi.NewKeyboardButton("Политика 🏛️"),
-// 		tgbotapi.NewKeyboardButton("Главное меню ⬅️"),
-// 	),
-// )
-
 type HistoryHandler struct {
-	keys []string
-	bot  *tgbotapi.BotAPI
+	GenericHandler
 }
 
 func NewHistoryHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
 	return &HistoryHandler{
-		keys: []string{"История ставок 📜"},
-		bot:  bot,
+		GenericHandler{
+			keys: []string{"История ставок 📜"},
+			bot:  bot,
+		},
 	}
-}
-
-func (h *HistoryHandler) Keys() []string {
-	return h.keys
 }
 
 func (h *HistoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
