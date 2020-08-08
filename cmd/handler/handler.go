@@ -8,17 +8,47 @@ import (
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
 )
 
+type HandlerFactory func(*logrus.Logger, *config.Config, *tgbotapi.BotAPI) Handler
+type Handler interface {
+	Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig
+	Keys() []string
+}
+
 type UpdateHandler struct {
-	log    *logrus.Logger
-	config *config.Config
-	bot    *tgbotapi.BotAPI
+	log      *logrus.Logger
+	config   *config.Config
+	bot      *tgbotapi.BotAPI
+	handlers map[string]Handler
 }
 
 func NewHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) *UpdateHandler {
-	return &UpdateHandler{
+	handlers := make(map[string]Handler)
+	h := &UpdateHandler{
 		log,
 		config,
 		bot,
+		handlers,
+	}
+
+	h.RegisterHandlers([]HandlerFactory{
+		NewStartHandler,
+		NewCategoriesHandler,
+		NewBalanceHandler,
+		NewAckedBetsHandler,
+		NewNackedBetsHandler,
+		NewHistoryHandler,
+		NewCategoryHandler,
+	})
+
+	return h
+}
+
+func (h *UpdateHandler) RegisterHandlers(factories []HandlerFactory) {
+	for _, factory := range factories {
+		handler := factory(h.log, h.config, h.bot)
+		for _, key := range handler.Keys() {
+			h.handlers[key] = handler
+		}
 	}
 }
 
@@ -33,16 +63,22 @@ func (h *UpdateHandler) Handle(update tgbotapi.Update, ctx context.Context) {
 		"text":     update.Message.Text,
 	}).Info("message accepted")
 
-	if update.Message.IsCommand() {
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-		switch update.Message.Command() {
-		case "start":
-			msg.Text = "Welcome to FireFerrets betting bot. 🔥🐹🤑"
-		default:
-			msg.Text = "I don't know that command"
-		}
-		h.bot.Send(msg)
-	} else {
+	var msg tgbotapi.MessageConfig
+	fallback := tgbotapi.NewMessage(update.Message.Chat.ID, "Пожалуйста, выберите пункт меню")
 
+	if update.Message.IsCommand() {
+		if handler, ok := h.handlers[update.Message.Command()]; ok {
+			msg = handler.Handle(update, ctx)
+		} else {
+			msg = fallback
+		}
+	} else {
+		if handler, ok := h.handlers[update.Message.Text]; ok {
+			msg = handler.Handle(update, ctx)
+		} else {
+			msg = fallback
+		}
 	}
+
+	h.bot.Send(msg)
 }

@@ -42,6 +42,6 @@ func main() {
 	h := handler.NewHandler(log, config, bot)
 	ctx := context.Background()
 	for update := range updates {
-		h.Handle(update, ctx)
+		go h.Handle(update, ctx)
 	}
 }
