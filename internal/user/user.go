@@ -4,7 +4,6 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -14,12 +13,18 @@ var (
 
 type User struct {
 	mu      sync.RWMutex
-	id      uuid.UUID
+	id      int
 	balance decimal.Decimal
 	history History
 }
 
-func (u *User) ID() uuid.UUID {
+func NewUser(id int) *User {
+	return &User{
+		id: id,
+	}
+}
+
+func (u *User) ID() int {
 	return u.id
 }
 

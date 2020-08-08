@@ -97,7 +97,7 @@ func (b *OrderBook) place(
 	}
 
 	_, err = user.ChangeBalance(
-		fmt.Sprintf("Place %s: coeff: %s, qty %s", order.Side, order.Coeff, order.Qty),
+		fmt.Sprintf("PlaceOrder %s: coeff: %s, qty %s", order.Side, order.Coeff, order.Qty),
 		order.Qty.Neg(),
 	)
 
