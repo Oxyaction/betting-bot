@@ -32,7 +32,7 @@ func (b *OrderBook) settle(reason string, side ob.Side) {
 			if order.Matched.IsZero() {
 				continue
 			}
-			if order.Side == ob.Back {
+			if order.Side == side {
 				totalDiff = totalDiff.Add(order.Settle(side))
 			}
 		}

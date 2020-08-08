@@ -123,5 +123,7 @@ func (e *Event) CancelOrder(user *user.User, orderID uuid.UUID) (order ob.Order,
 		return
 	}
 
+	e.winLine.SettleBack()
+
 	return e.winLine.Cancel(user, orderID)
 }

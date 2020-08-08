@@ -45,7 +45,10 @@ func TestManager(t *testing.T) {
 		fmt.Println(u.ID(), orders)
 	}
 
-	err = em.SettleEvent(e.ID, WinSideLay)
+	t.Logf("balance1 %s", u1.GetBalance())
+	t.Logf("balance2 %s", u2.GetBalance())
+
+	err = em.SettleEvent(e.ID, WinSideBack)
 	if err != nil {
 		t.Fatal(err)
 	}

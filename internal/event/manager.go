@@ -76,9 +76,9 @@ func (e byStartAt) Less(i, j int) bool { return e[i].StartAt.Before(e[j].StartAt
 func (e byStartAt) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
 
 func (m *Manager) SettleEvent(eventID uuid.UUID, winSide WinSide) (err error) {
-	m.mu.Lock()
+	m.mu.RLock()
 	e, ok := m.events[eventID]
-	m.mu.Unlock()
+	m.mu.RUnlock()
 
 	if !ok {
 		err = ErrNotFound
