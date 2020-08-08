@@ -19,6 +19,12 @@ type User struct {
 	history History
 }
 
+func NewUser() *User {
+	return &User{
+		id: uuid.New(),
+	}
+}
+
 func (u *User) ID() uuid.UUID {
 	return u.id
 }
