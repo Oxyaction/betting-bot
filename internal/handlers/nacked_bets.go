@@ -6,26 +6,19 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
+	"gitlab.com/fireferretsbet/tg-bot/internal/user"
 )
-
-// var categoriesMenuKeyboard = tgbotapi.NewReplyKeyboard(
-// 	tgbotapi.NewKeyboardButtonRow(
-// 		tgbotapi.NewKeyboardButton("Спорт ⚽"),
-// 		tgbotapi.NewKeyboardButton("Киберспорт 🎮"),
-// 		tgbotapi.NewKeyboardButton("Политика 🏛️"),
-// 		tgbotapi.NewKeyboardButton("Главное меню ⬅️"),
-// 	),
-// )
 
 type NackedBetsHandler struct {
 	GenericHandler
 }
 
-func NewNackedBetsHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
+func NewNackedBetsHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
 	return &NackedBetsHandler{
 		GenericHandler{
-			keys: []string{"Неподтвержденные ставки 🤔"},
-			bot:  bot,
+			keys:       []string{"Неподтвержденные ставки 🤔"},
+			bot:        bot,
+			userStates: userStates,
 		},
 	}
 }

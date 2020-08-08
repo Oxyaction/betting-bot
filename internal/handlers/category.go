@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
+	"gitlab.com/fireferretsbet/tg-bot/internal/user"
 )
 
 var matches map[string][]string = map[string][]string{
@@ -15,20 +16,11 @@ var matches map[string][]string = map[string][]string{
 	"Политика 🏛️":  []string{"1. Joe Biden - Donald Trump", "2. Лукашенко - Тихановская"},
 }
 
-var categoryMenuKeyboard = tgbotapi.NewReplyKeyboard(
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Спорт ⚽"),
-		tgbotapi.NewKeyboardButton("Киберспорт 🎮"),
-		tgbotapi.NewKeyboardButton("Политика 🏛️"),
-		tgbotapi.NewKeyboardButton("Главное меню ⬅️"),
-	),
-)
-
 type CategoryHandler struct {
 	GenericHandler
 }
 
-func NewCategoryHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
+func NewCategoryHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
 	return &CategoryHandler{
 		GenericHandler{
 			keys: []string{
@@ -49,7 +41,7 @@ func (h *CategoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 		for i := 0; i < len(matches); i++ {
 			buttons = append(buttons, tgbotapi.NewKeyboardButton(matches[i]))
 		}
-		buttons = append(buttons, tgbotapi.NewKeyboardButton("Главное меню ⬅️"))
+		buttons = append(buttons, tgbotapi.NewKeyboardButton("Назад ⬅️"))
 		var digitsMenuKeyboard = tgbotapi.NewReplyKeyboard(
 			tgbotapi.NewKeyboardButtonRow(buttons...),
 		)
@@ -66,5 +58,9 @@ func (h *CategoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 }
 
 func (h *CategoryHandler) GetDialogContext() string {
-	return "match"
+	return "coeff"
+}
+
+func (h *CategoryHandler) GetPreviousRoute() string {
+	return "categories"
 }

@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/fireferretsbet/tg-bot/internal/config"
+	"gitlab.com/fireferretsbet/tg-bot/internal/user"
 )
 
 var categoriesMenuKeyboard = tgbotapi.NewReplyKeyboard(
@@ -21,11 +22,12 @@ type CategoriesHandler struct {
 	GenericHandler
 }
 
-func NewCategoriesHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) Handler {
+func NewCategoriesHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
 	return &CategoriesHandler{
 		GenericHandler{
-			keys: []string{"Категории 📂"},
-			bot:  bot,
+			keys:       []string{"Категории 📂", "categories"},
+			bot:        bot,
+			userStates: userStates,
 		},
 	}
 }
