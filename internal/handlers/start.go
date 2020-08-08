@@ -4,9 +4,7 @@ import (
 	"context"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
 var startMenuKeyboard = tgbotapi.NewReplyKeyboard(
@@ -27,12 +25,11 @@ type StartHandler struct {
 	GenericHandler
 }
 
-func NewStartHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewStartHandler(env *serverenv.ServerEnv) Handler {
 	return &StartHandler{
 		GenericHandler{
-			keys:       []string{"start", "Главное меню ⬅️"},
-			bot:        bot,
-			userStates: userStates,
+			keys: []string{"start", "Главное меню ⬅️"},
+			env:  env,
 		},
 	}
 }

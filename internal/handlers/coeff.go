@@ -5,9 +5,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	ob "github.com/miktwon/orderbook"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
 var coeffMenuKeyboard = tgbotapi.NewReplyKeyboard(
@@ -28,12 +26,11 @@ type CoeffHandler struct {
 	GenericHandler
 }
 
-func NewCoeffHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewCoeffHandler(env *serverenv.ServerEnv) Handler {
 	return &CoeffHandler{
 		GenericHandler{
-			keys:       []string{"coeff"},
-			bot:        bot,
-			userStates: userStates,
+			keys: []string{"coeff"},
+			env:  env,
 		},
 	}
 }
@@ -50,7 +47,8 @@ func (h *CoeffHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbot
 			return tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите Lay или Back")
 		}
 
-		h.userStates[update.Message.From.ID].Side = side
+		// h.userStates[update.Message.From.ID].Side = side
+		h.env.UserManager().SetSide(update.Message.From.ID, side)
 	}
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите коэффициент или введите свой")

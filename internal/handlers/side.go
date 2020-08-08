@@ -4,9 +4,7 @@ import (
 	"context"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
 var sideMenuKeyboard = tgbotapi.NewReplyKeyboard(
@@ -20,18 +18,17 @@ type SideHandler struct {
 	GenericHandler
 }
 
-func NewSideHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewSideHandler(env *serverenv.ServerEnv) Handler {
 	return &SideHandler{
 		GenericHandler{
-			keys:       []string{"side"},
-			bot:        bot,
-			userStates: userStates,
+			keys: []string{"side"},
+			env:  env,
 		},
 	}
 }
 
 func (h *SideHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
-	h.userStates[update.Message.From.ID].Match = update.Message.Text
+	h.env.UserManager().SetMatch(update.Message.From.ID, update.Message.Text)
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите сторону")
 	msg.ReplyMarkup = sideMenuKeyboard

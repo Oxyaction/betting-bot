@@ -5,9 +5,7 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
 var matches map[string][]string = map[string][]string{
@@ -20,7 +18,7 @@ type CategoryHandler struct {
 	GenericHandler
 }
 
-func NewCategoryHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewCategoryHandler(env *serverenv.ServerEnv) Handler {
 	return &CategoryHandler{
 		GenericHandler{
 			keys: []string{
@@ -28,7 +26,7 @@ func NewCategoryHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi
 				"Киберспорт 🎮",
 				"Политика 🏛️",
 			},
-			bot: bot,
+			env: env,
 		},
 	}
 }

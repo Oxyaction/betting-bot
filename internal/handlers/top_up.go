@@ -4,9 +4,7 @@ import (
 	"context"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
 var topUpMenuKeyboard = tgbotapi.NewReplyKeyboard(
@@ -28,12 +26,11 @@ type TopUpHandler struct {
 	GenericHandler
 }
 
-func NewTopUpHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewTopUpHandler(env *serverenv.ServerEnv) Handler {
 	return &TopUpHandler{
 		GenericHandler{
-			keys:       []string{"Пополнить 💳"},
-			bot:        bot,
-			userStates: userStates,
+			keys: []string{"Пополнить 💳"},
+			env:  env,
 		},
 	}
 }

@@ -1,14 +1,10 @@
 package handlers
 
-import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
-)
+import "gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 
 type GenericHandler struct {
-	keys       []string
-	bot        *tgbotapi.BotAPI
-	userStates map[int]*user.UserState
+	keys []string
+	env  *serverenv.ServerEnv
 }
 
 func (h *GenericHandler) Keys() []string {

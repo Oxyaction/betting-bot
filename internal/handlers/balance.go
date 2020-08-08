@@ -4,9 +4,7 @@ import (
 	"context"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
 var balanceMenuKeyboard = tgbotapi.NewReplyKeyboard(
@@ -20,12 +18,11 @@ type BalanceHandler struct {
 	GenericHandler
 }
 
-func NewBalanceHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewBalanceHandler(env *serverenv.ServerEnv) Handler {
 	return &BalanceHandler{
 		GenericHandler{
-			keys:       []string{"Баланс 🏦", "top_up_success"},
-			bot:        bot,
-			userStates: userStates,
+			keys: []string{"Баланс 🏦", "top_up_success"},
+			env:  env,
 		},
 	}
 }
@@ -33,7 +30,7 @@ func NewBalanceHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.
 func (h *BalanceHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
 	var text string
 	// top_up_success
-	if h.userStates[update.Message.From.ID].ContextRoute == "top_up_success" {
+	if h.env.UserManager().GetContextRoute(update.Message.From.ID) == "top_up_success" {
 		text = "Баланс успешно пополнен ✅\n\n"
 	} else {
 		text = "Баланс 🏦\n\n"

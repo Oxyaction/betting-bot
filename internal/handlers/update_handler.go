@@ -2,33 +2,26 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
-type HandlerFactory func(*logrus.Logger, *config.Config, *tgbotapi.BotAPI, map[int]*user.UserState) Handler
+type HandlerFactory func(*serverenv.ServerEnv) Handler
 
 type UpdateHandler struct {
-	log        *logrus.Logger
-	config     *config.Config
-	bot        *tgbotapi.BotAPI
-	handlers   map[string]Handler
-	userStates map[int]*user.UserState
+	env      *serverenv.ServerEnv
+	handlers map[string]Handler
+	// userStates map[int]*user.UserState
 }
 
-func NewUpdateHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI) *UpdateHandler {
+func NewUpdateHandler(env *serverenv.ServerEnv) *UpdateHandler {
 	handlers := make(map[string]Handler)
-	userStates := make(map[int]*user.UserState)
+	// userStates := make(map[int]*user.UserState)
 	h := &UpdateHandler{
-		log,
-		config,
-		bot,
+		env,
 		handlers,
-		userStates,
 	}
 
 	h.RegisterHandlers([]HandlerFactory{
@@ -51,29 +44,28 @@ func NewUpdateHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.B
 
 func (h *UpdateHandler) RegisterHandlers(factories []HandlerFactory) {
 	for _, factory := range factories {
-		handler := factory(h.log, h.config, h.bot, h.userStates)
+		handler := factory(h.env)
 		for _, key := range handler.Keys() {
 			h.handlers[key] = handler
 		}
 	}
 }
 
-func (h *UpdateHandler) Handle(update tgbotapi.Update, ctx context.Context) {
+func (h *UpdateHandler) Handle(update tgbotapi.Update, ctx context.Context) error {
 	if update.Message == nil {
-		return
+		return nil
 	}
 
-	h.log.WithFields(logrus.Fields{
-		"user_id":  update.Message.From.ID,
+	userId := update.Message.From.ID
+	userManager := h.env.UserManager()
+
+	h.env.Logger().WithFields(logrus.Fields{
+		"user_id":  userId,
 		"username": update.Message.From.UserName,
 		"text":     update.Message.Text,
 	}).Info("message accepted")
 
-	if _, ok := h.userStates[update.Message.From.ID]; !ok {
-		h.userStates[update.Message.From.ID] = &user.UserState{
-			PreviousRoute: "start",
-		}
-	}
+	userManager.Add(update.Message.From.ID)
 
 	var msg tgbotapi.MessageConfig
 	fallback := tgbotapi.NewMessage(update.Message.Chat.ID, "Неизвестная комманда")
@@ -83,9 +75,7 @@ func (h *UpdateHandler) Handle(update tgbotapi.Update, ctx context.Context) {
 
 	// handle back btn click
 	if update.Message.Text == "Назад ⬅️" {
-		fmt.Println("xxx")
-		fmt.Printf("%#v\n", h.userStates[update.Message.From.ID])
-		route = h.userStates[update.Message.From.ID].PreviousRoute
+		route = userManager.GetPreviousRoute(userId)
 	} else {
 		route = update.Message.Text
 	}
@@ -97,20 +87,29 @@ func (h *UpdateHandler) Handle(update tgbotapi.Update, ctx context.Context) {
 		handler = h.handlers[route]
 		// trying to get contextual handler
 	} else {
-		if h.userStates[update.Message.From.ID].ContextRoute != "" {
-			handler = h.handlers[h.userStates[update.Message.From.ID].ContextRoute]
+		contextRoute := userManager.GetContextRoute(userId)
+		if contextRoute != "" {
+			handler = h.handlers[contextRoute]
 		}
 	}
 
 	if handler != nil {
 		msg = handler.Handle(update, ctx)
-		h.userStates[update.Message.From.ID].ContextRoute = handler.GetDialogContext()
-		h.userStates[update.Message.From.ID].PreviousRoute = handler.GetPreviousRoute()
+		err := userManager.SetContextRoute(userId, handler.GetDialogContext())
+		if err != nil {
+			return err
+		}
+		err = userManager.SetPreviousRoute(userId, handler.GetPreviousRoute())
+		if err != nil {
+			return err
+		}
 	} else {
 		msg = fallback
 	}
 
-	fmt.Printf("%#v\n", h.userStates[update.Message.From.ID])
+	// fmt.Printf("%#v\n", h.userStates[update.Message.From.ID])
 
-	h.bot.Send(msg)
+	// h.bot.Send(msg)
+	h.env.Bot().Send(msg)
+	return nil
 }
