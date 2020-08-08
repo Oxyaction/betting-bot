@@ -9,4 +9,8 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	golang.org/x/sys v0.0.0-20200806125547-5acd03effb82 // indirect
+	github.com/emirpasic/gods v1.12.0 // indirect
+	github.com/google/uuid v1.1.1
+	github.com/miktwon/orderbook v0.2.6-0.20200808112339-638e4ce93906
+	github.com/shopspring/decimal v1.2.0
 )
