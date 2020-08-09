@@ -69,6 +69,19 @@ func (m *Manager) EventsByCategory(category string) (events []*Event) {
 	return
 }
 
+func (m *Manager) EventByName(name string) *Event {
+	for _, event := range m.events {
+		if event.Name == name {
+			return event
+		}
+	}
+	return nil
+}
+
+func (m *Manager) Event(id uuid.UUID) *Event {
+	return m.events[id]
+}
+
 type byStartAt []*Event
 
 func (e byStartAt) Len() int           { return len(e) }

@@ -4,21 +4,18 @@ import (
 	"context"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
 type NackedBetsHandler struct {
 	GenericHandler
 }
 
-func NewNackedBetsHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewNackedBetsHandler(env *serverenv.ServerEnv) Handler {
 	return &NackedBetsHandler{
 		GenericHandler{
-			keys:       []string{"Неподтвержденные ставки 🤔"},
-			bot:        bot,
-			userStates: userStates,
+			keys: []string{"Неподтвержденные ставки 🤔"},
+			env:  env,
 		},
 	}
 }

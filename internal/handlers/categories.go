@@ -4,9 +4,8 @@ import (
 	"context"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
+	"gitlab.com/fireferretsbet/tg-bot/internal/utils"
 )
 
 var categoriesMenuKeyboard = tgbotapi.NewReplyKeyboard(
@@ -22,18 +21,23 @@ type CategoriesHandler struct {
 	GenericHandler
 }
 
-func NewCategoriesHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewCategoriesHandler(env *serverenv.ServerEnv) Handler {
 	return &CategoriesHandler{
 		GenericHandler{
-			keys:       []string{"Категории 📂", "categories"},
-			bot:        bot,
-			userStates: userStates,
+			keys: []string{"Категории 📂", "categories"},
+			env:  env,
 		},
 	}
 }
 
 func (h *CategoriesHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Чтобы сделать ставку выберите интересующую категорию. 📂")
-	msg.ReplyMarkup = categoriesMenuKeyboard
+	categories := h.env.EventManager().Categories()
+	categories = append(categories, "Главное меню ⬅️")
+	msg.ReplyMarkup = utils.BuildKeyboardFromStrings(categories)
 	return msg
+}
+
+func (h *CategoriesHandler) GetDialogContext() string {
+	return "category"
 }

@@ -4,9 +4,7 @@ import (
 	"context"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/sirupsen/logrus"
-	"gitlab.com/fireferretsbet/tg-bot/internal/config"
-	"gitlab.com/fireferretsbet/tg-bot/internal/user"
+	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 	"gitlab.com/fireferretsbet/tg-bot/internal/utils"
 )
 
@@ -29,12 +27,11 @@ type BetHandler struct {
 	GenericHandler
 }
 
-func NewBetHandler(log *logrus.Logger, config *config.Config, bot *tgbotapi.BotAPI, userStates map[int]*user.UserState) Handler {
+func NewBetHandler(env *serverenv.ServerEnv) Handler {
 	return &BetHandler{
 		GenericHandler{
-			keys:       []string{"bet"},
-			bot:        bot,
-			userStates: userStates,
+			keys: []string{"bet"},
+			env:  env,
 		},
 	}
 }
@@ -45,8 +42,7 @@ func (h *BetHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotap
 		if err != nil {
 			return tgbotapi.NewMessage(update.Message.Chat.ID, "Неправильное значение")
 		}
-
-		h.userStates[update.Message.From.ID].Coeff = coeff
+		h.env.UserManager().SetCoeff(update.Message.From.ID, coeff)
 	}
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Сделайте вашу ставку")
