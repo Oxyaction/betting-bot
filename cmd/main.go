@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"gitlab.com/fireferretsbet/tg-bot/internal/controllers"
 	"gitlab.com/fireferretsbet/tg-bot/internal/handlers"
 	"gitlab.com/fireferretsbet/tg-bot/internal/setup"
 )
@@ -15,7 +16,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	settle := controllers.NewSettleController(env)
+
+	http.Handle("/settle", settle)
 	updates := env.Bot().ListenForWebhook("/")
+
 	go http.ListenAndServe("0.0.0.0:"+strconv.Itoa(config.Port), nil)
 
 	h := handlers.NewUpdateHandler(env)

@@ -41,9 +41,10 @@ func (h *BetCheckHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 	state := h.env.UserManager().GetState(update.Message.From.ID)
 	event := h.env.EventManager().Event(state.Event)
 
-	text := fmt.Sprintf("Проверьте правильность данных\n\nМатч: %s\nСторона: %s\nКоэффициент: %s\nСтавка: %s$\n\n", event.Name, state.Side, state.Coeff, state.Qty)
+	text := fmt.Sprintf("Проверьте правильность данных\n\nМатч: *%s*\nСторона: *%s*\nКоэффициент: *%s*\nСтавка: *%s USDT*\n\n", event.Name, state.Side, state.Coeff, state.Qty)
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
 	msg.ReplyMarkup = betCheckMenuKeyboard
+	msg.ParseMode = "Markdown"
 	return msg
 }
 

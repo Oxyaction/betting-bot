@@ -12,6 +12,7 @@ import (
 var balanceMenuKeyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
 		tgbotapi.NewKeyboardButton("Пополнить 💳"),
+		tgbotapi.NewKeyboardButton("Вывести 💳"),
 		tgbotapi.NewKeyboardButton("Главное меню ⬅️"),
 	),
 )
@@ -44,7 +45,7 @@ func (h *BalanceHandler) Handle(update tgbotapi.Update, ctx context.Context) tgb
 	} else {
 		text = "Баланс 🏦\n\n"
 	}
-	text += fmt.Sprintf("Ваш текущий баланс: *%s $*.", user.GetBalance().Truncate(2).String())
+	text += fmt.Sprintf("Ваш текущий баланс: *%s USDT*.", user.GetBalance().Truncate(2).String())
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
 	msg.ParseMode = "Markdown"
 	msg.ReplyMarkup = balanceMenuKeyboard

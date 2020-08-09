@@ -28,8 +28,9 @@ func Setup(ctx context.Context) (*serverenv.ServerEnv, *config.Config, error) {
 
 	em := event.NewManager(log)
 	// add test data
-	em.NewEvent("Спорт ⚽", "Динамо - Шахтер", time.Now().Add(2*time.Hour))
-	em.NewEvent("Спорт ⚽", "Ворскла - Карпаты", time.Now().Add(2*time.Hour))
+	em.NewEvent("Спорт ⚽", "⚽ Динамо - Шахтер", time.Now().Add(2*time.Hour))
+	em.NewEvent("Спорт ⚽", "⚽ Ворскла - Карпаты", time.Now().Add(2*time.Hour))
+	em.NewEvent("Спорт ⚽", "🥊 Усик - Джошуа", time.Now().Add(2*time.Hour))
 	em.NewEvent("Киберспорт 🎮", "Navi - Empire", time.Now().Add(2*time.Hour))
 	em.NewEvent("Политика 🏛️", "Baiden - Trump", time.Now().Add(2*time.Hour))
 

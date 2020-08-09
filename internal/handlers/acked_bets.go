@@ -21,7 +21,7 @@ func NewAckedBetsHandler(env *serverenv.ServerEnv) Handler {
 }
 
 func (h *AckedBetsHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Подтвержденные ставки ✅\n\nДинамо (Киев) - Шахтер (Донецк) 100$")
-	// msg.ReplyMarkup = categoriesMenuKeyboard
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Подтвержденные ставки ✅\n\nДинамо (Киев) - Шахтер (Донецк) *100 USDT*")
+	msg.ParseMode = "Markdown"
 	return msg
 }

@@ -35,7 +35,8 @@ func NewStartHandler(env *serverenv.ServerEnv) Handler {
 }
 
 func (h *StartHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Вас приветствует FireFerrets бот для ставок. 🔥🐹🤑")
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Вас приветствует *FireFerrets* бот для ставок. 🔥🐹🤑\nВы можете использовать любые коэффициенты\nНадежность 🔒 и скорость 🚀 ввода/вывода 💳 обеспечена blockchain\n\n")
 	msg.ReplyMarkup = startMenuKeyboard
+	msg.ParseMode = "Markdown"
 	return msg
 }

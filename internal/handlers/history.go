@@ -21,7 +21,7 @@ func NewHistoryHandler(env *serverenv.ServerEnv) Handler {
 }
 
 func (h *HistoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbotapi.MessageConfig {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "История ставок \n\nДинамо (Киев) - Шахтер (Донецк) 100$ ❌\nУсик - Рокки 50$ ✅")
-	// msg.ReplyMarkup = categoriesMenuKeyboard
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "История ставок \n\nДинамо (Киев) - Шахтер (Донецк) *100 USDT* ❌\nУсик - Рокки *50 USDT* ✅")
+	msg.ParseMode = "Markdown"
 	return msg
 }

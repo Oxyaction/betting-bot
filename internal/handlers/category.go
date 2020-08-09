@@ -39,7 +39,7 @@ func (h *CategoryHandler) Handle(update tgbotapi.Update, ctx context.Context) tg
 		eventTitles = append(eventTitles, event.Name)
 	}
 
-	textResponse = "Выберите интересующий матч:\n"
+	textResponse = "Выберите интересующий матч:"
 	textResponse += strings.Join(eventTitles, "\n")
 	msg.Text = textResponse
 
