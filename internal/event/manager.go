@@ -27,7 +27,7 @@ func NewManager(log *logrus.Logger) *Manager {
 
 func (m *Manager) NewEvent(category, name string, startAt time.Time) (e *Event) {
 	e = NewEvent(m.log, name, category, startAt)
-	m.log.Error("NewEvent", e.Category, e.Name, startAt)
+	m.log.Info("NewEvent", e.Category, e.Name, startAt)
 
 	m.mu.Lock()
 	m.events[e.ID] = e
@@ -37,7 +37,7 @@ func (m *Manager) NewEvent(category, name string, startAt time.Time) (e *Event) 
 	ch := time.After(startAt.Sub(time.Now()))
 	go func() {
 		<-ch
-		m.log.Error("Start event", e.Category, e.Name)
+		m.log.Info("Start event", e.Category, e.Name)
 		err := e.Start()
 		if err != nil {
 			m.log.Error("e.Start", err)

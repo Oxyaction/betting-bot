@@ -2,6 +2,7 @@ package event
 
 import (
 	"errors"
+	"github.com/miktwon/orderbook"
 	"sync"
 	"time"
 
@@ -124,4 +125,12 @@ func (e *Event) CancelOrder(user *user.User, orderID uuid.UUID) (order ob.Order,
 	}
 
 	return e.winLine.Cancel(user, orderID)
+}
+
+func (e *Event) Unmatched() (lay, back []*orderbook.PriceLevel) {
+	return e.winLine.Unmatched()
+}
+
+func (e *Event) Matched() (lay, back []*orderbook.PriceLevel) {
+	return e.winLine.Matched()
 }
