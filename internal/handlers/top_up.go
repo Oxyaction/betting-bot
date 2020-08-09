@@ -9,15 +9,15 @@ import (
 
 var topUpMenuKeyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("1USDT"),
-		tgbotapi.NewKeyboardButton("2USDT"),
-		tgbotapi.NewKeyboardButton("5USDT"),
-		tgbotapi.NewKeyboardButton("10USDT"),
+		tgbotapi.NewKeyboardButton("1 USDT"),
+		tgbotapi.NewKeyboardButton("2 USDT"),
+		tgbotapi.NewKeyboardButton("5 USDT"),
+		tgbotapi.NewKeyboardButton("10 USDT"),
 	),
 	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("20USDT"),
-		tgbotapi.NewKeyboardButton("50USDT"),
-		tgbotapi.NewKeyboardButton("100USDT"),
+		tgbotapi.NewKeyboardButton("20 USDT"),
+		tgbotapi.NewKeyboardButton("50 USDT"),
+		tgbotapi.NewKeyboardButton("100 USDT"),
 		tgbotapi.NewKeyboardButton("Назад ⬅️"),
 	),
 )

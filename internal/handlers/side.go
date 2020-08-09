@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"gitlab.com/fireferretsbet/tg-bot/internal/event"
 	"gitlab.com/fireferretsbet/tg-bot/internal/serverenv"
 )
 
@@ -36,7 +37,10 @@ func (h *SideHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbota
 	}
 	h.env.UserManager().SetEvent(update.Message.From.ID, event.ID)
 
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите сторону")
+	text := formatEventStats(event)
+	text += "\nВыберите сторону"
+
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
 	msg.ReplyMarkup = sideMenuKeyboard
 	return msg
 }
@@ -47,4 +51,25 @@ func (h *SideHandler) GetDialogContext() string {
 
 func (h *SideHandler) GetPreviousRoute() string {
 	return "categories"
+}
+
+func formatEventStats(event *event.Event) string {
+	lay, back := event.Unmatched()
+	text := ""
+
+	if len(back) > 0 {
+		text += "Back:\nКоэффициент - Сумма ставок\n"
+		for _, l := range back {
+			text += fmt.Sprintf("%s    ---    %s USDT\n", l.Price.String(), l.Quantity.Truncate(2).String())
+		}
+	}
+
+	if len(lay) > 0 {
+		text += "Lay:\nКоэффициент - Сумма ставок\n"
+		for _, l := range lay {
+			text += fmt.Sprintf("%s    ---    %s USDT\n", l.Price.String(), l.Quantity.Truncate(2).String())
+		}
+	}
+
+	return text
 }

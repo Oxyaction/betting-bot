@@ -18,7 +18,7 @@ func NewSettleController(env *serverenv.ServerEnv) *SettleController {
 
 func (sc *SettleController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	text := "*Поздравляем* 🎉\n⚽ Матч *Шахтер - Динамо* завершился\nВы выиграли *76 USDT* 💵"
+	text := "*Поздравляем* 🎉\n🥊 Матч *Усик - Джошуа* завершился\nВы выиграли *2.5 USDT* 💵"
 	// hardcoded oxyaction
 	msg := tgbotapi.NewMessage(105040780, text)
 	msg.ParseMode = "Markdown"

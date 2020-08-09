@@ -47,7 +47,6 @@ func (h *CoeffHandler) Handle(update tgbotapi.Update, ctx context.Context) tgbot
 			return tgbotapi.NewMessage(update.Message.Chat.ID, "Выберите Lay или Back")
 		}
 
-		// h.userStates[update.Message.From.ID].Side = side
 		h.env.UserManager().SetSide(update.Message.From.ID, side)
 	}
 

@@ -7,7 +7,7 @@ import (
 )
 
 func DecimalFromText(text string) (decimal.Decimal, error) {
-	reg, err := regexp.Compile("[^0-9]+")
+	reg, err := regexp.Compile("[^.0-9]+")
 	if err != nil {
 		panic(err)
 	}
