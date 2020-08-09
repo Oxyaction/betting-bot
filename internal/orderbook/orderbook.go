@@ -104,7 +104,7 @@ func (b *OrderBook) place(
 	for _, o := range done {
 		memOrder := b.orderMap[o.ID()]
 		memOrder.Status = OrderStatusMatched
-		memOrder.Matched = order.Qty
+		memOrder.Matched = memOrder.Qty
 		memOrder.Unmatched = decimal.Zero
 		b.orderMap[o.ID()] = memOrder
 		changed = append(changed, memOrder)
@@ -138,9 +138,48 @@ func (b *OrderBook) makeChangedMap(changed []Order) (changedMap map[*user.User][
 	changedMap = map[*user.User][]Order{}
 	b.mu.RLock()
 	for _, order := range changed {
-		user := b.order2user[order.ID]
-		changedMap[user] = append(changedMap[user], order)
+		u := b.order2user[order.ID]
+		changedMap[u] = append(changedMap[u], order)
 	}
 	b.mu.RUnlock()
+	return
+}
+
+func (b *OrderBook) Unmatched() (lay, back []*ob.PriceLevel) {
+	b.mu.RLock()
+	lay, back = b.ob.Depth()
+	b.mu.RUnlock()
+
+	return
+}
+
+func (b *OrderBook) Matched() (lay, back []*ob.PriceLevel) {
+	mBack := map[string]ob.PriceLevel{}
+	mLay := map[string]ob.PriceLevel{}
+	b.mu.RLock()
+	for _, o := range b.orderMap {
+		coeff := o.Coeff.String()
+		if o.Side == ob.Back {
+			z := mBack[coeff]
+			z.Price = o.Coeff
+			z.Quantity = z.Quantity.Add(o.Matched)
+			mBack[coeff] = z
+		} else {
+			z := mLay[coeff]
+			z.Price = o.Coeff
+			z.Quantity = z.Quantity.Add(o.Matched)
+			mLay[coeff] = z
+		}
+	}
+	b.mu.RUnlock()
+
+	for _, pl := range mBack {
+		back = append(back, &pl)
+	}
+
+	for _, pl := range mLay {
+		lay = append(lay, &pl)
+	}
+
 	return
 }

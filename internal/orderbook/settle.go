@@ -1,6 +1,7 @@
 package orderbook
 
 import (
+	"fmt"
 	ob "github.com/miktwon/orderbook"
 	"github.com/shopspring/decimal"
 	log "github.com/sirupsen/logrus"
@@ -24,7 +25,7 @@ func (b *OrderBook) SettleLay(reason string) {
 	b.mu.Unlock()
 }
 
-func (b *OrderBook) settle(reason string, side ob.Side) {
+func (b *OrderBook) settle(reason string, winSide ob.Side) {
 	for user, orderIDs := range b.user2order {
 		var totalDiff decimal.Decimal
 		for _, orderID := range orderIDs {
@@ -32,11 +33,11 @@ func (b *OrderBook) settle(reason string, side ob.Side) {
 			if order.Matched.IsZero() {
 				continue
 			}
-			if order.Side == side {
-				totalDiff = totalDiff.Add(order.Settle(side))
-			}
+			totalDiff = totalDiff.Add(order.Settle(winSide))
+
+			fmt.Println(user.ID(), totalDiff)
 		}
-		reason += ", " + side.String() + ": "
+		reason += ", " + winSide.String() + ": "
 		_, err := user.ChangeBalance(reason, totalDiff)
 		if err != nil {
 			log.Error("user.ChangeBalance", reason, err)

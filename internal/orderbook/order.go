@@ -46,14 +46,25 @@ func NewOrder() Order {
 
 var one = decimal.NewFromInt(1)
 
+//func (o Order) Liability() decimal.Decimal {
+//	if o.Side == ob.Back {
+//		return o.Qty
+//	}
+//
+//	return o.Coeff.Sub(one).Mul(o.Qty)
+//}
+
 func (o Order) Settle(winSide ob.Side) decimal.Decimal {
 	if o.Side != winSide {
-		return o.Matched.Neg()
+		return o.Unmatched
 	}
 
 	c := o.Coeff.Sub(one)
 	if o.Side == ob.Back {
-		return o.Matched.Mul(c)
+		//fmt.Println("------>", o.Side, o.Coeff, o.Matched, o.Matched.Mul(o.Coeff), o.Qty)
+		return o.Matched.Mul(o.Coeff).Add(o.Unmatched)
 	}
-	return o.Matched.Div(c)
+
+	//fmt.Println("------>", o.Side, o.Coeff, o.Matched, o.Matched.Div(c), o.Qty)
+	return o.Matched.Div(c).Add(o.Unmatched)
 }
